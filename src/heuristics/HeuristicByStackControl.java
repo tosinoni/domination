@@ -11,7 +11,7 @@ import src.State;
 public class HeuristicByStackControl extends Heuristic {
 
 	public int evaluate(Node node, Player player) {
-
+		estimate = 0;
 		if (node != null && node.getState() != null) {
 			State state = node.getState();
 			List<Piece>[][] stateGrid = state.getGrid();

@@ -18,7 +18,7 @@ public class Game {
 	private List<Player> AIPlayers;
 	private List<Piece>[][] gamePieces;
 	private Set<Node> rootsChildren;
-	private int uptoDepth = 16;
+	private int uptoDepth = 100;
 	private ProductionSystem productionSystem;
 	private Player currentPlayer;
 	private Heuristic currentHeuristic;
@@ -102,8 +102,9 @@ public class Game {
 				return Integer.MIN_VALUE;
 		}
 
-		if (depth == uptoDepth || isGameOver(board, players))
+		if (depth == uptoDepth || isGameOver(board, players)) {
 			return currentHeuristic.evaluate(node, player);
+		}
 
 		Set<Node> expandedNodes = productionSystem.expand(node, player);
 
@@ -116,8 +117,10 @@ public class Game {
 		int maxValue = Integer.MIN_VALUE, minValue = Integer.MAX_VALUE;
 		List<Player> initialPlayers = cloneList(players);
         List<Piece>[][] initialBoard = cloneBoard(board);
+
 		for (Node newNode : expandedNodes) {
 			int currentScore = 0;
+
 			if (turn == 1) {
 				board = playMove(board, players, newNode, 0);
 				//players = AIPlayers;
@@ -126,7 +129,7 @@ public class Game {
 
 				// Set alpha
 				alpha = Math.max(currentScore, alpha);
-				newNode.setEstimateCost(currentScore);
+				//newNode.setEstimateCost(currentScore);
 				if (depth == 1)
 					rootsChildren.add(newNode);
 			} else if (turn == 2) {
@@ -155,9 +158,10 @@ public class Game {
 		for (int i = 1; i <= n; i++) {
 			Player player;
 			if (i % 2 == 0)
-				player = new Player("" + i, i, new HeuristicByStackControl());
-			else
 				player = new Player("" + i, i, new HeuristicByCapturedPieces());
+			else
+				player = new Player("" + i, i, new HeuristicByStackControl());
+
 			players.add(player);
 		}
 	}
@@ -276,18 +280,24 @@ public class Game {
 		// TODO Auto-generated method stub
 		Game game = new Game(2);
 		State s = new State(game.getGamePieces());
+		Move m = new Move();
 		List<Piece> pieces = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
-			pieces.add(new Piece("2", game.players.get(1)));
+			pieces.add(new Piece("1", game.players.get(0)));
 		}
 		s.getGrid()[1][1].addAll(pieces);
-		s.print();
+		Set<Node> nodes = m.moveLeft(s, 1, 2);
 
-		Move m = new Move();
-		Set<Node> nodes = m.moveDown(s, 1, 1);
-		for (Node n : nodes) {
-			n.getState().print();
-		}
+		Node n = nodes.iterator().next();
+		game.gamePieces = game.playMove(game.gamePieces, game.players, n, 0);
+		System.out.println(n.getCapturedPieces().size());
+
+		System.out.println(game.players.get(0).getPieces());
+	    s = new State(game.getGamePieces());
+	    s.print();
+//		for (Node n : nodes) {
+//			n.getState().print();
+//		}
 	}
 
 }

@@ -7,6 +7,7 @@ import src.Player;
 public class HeuristicByCapturedPieces extends Heuristic{
 
 	public int evaluate(Node node, Player player) {
+		estimate = 0;
 
 		if (node != null) {
 			for (Piece piece : node.getCapturedPieces()) {
