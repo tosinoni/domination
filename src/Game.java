@@ -18,7 +18,7 @@ public class Game {
 	private List<Player> AIPlayers;
 	private List<Piece>[][] gamePieces;
 	private Set<Node> rootsChildren;
-	private int uptoDepth = 100;
+	private int uptoDepth = 3;
 	private ProductionSystem productionSystem;
 	private Player currentPlayer;
 	private Heuristic currentHeuristic;
@@ -125,10 +125,10 @@ public class Game {
 				board = playMove(board, players, newNode, 0);
 				//players = AIPlayers;
 				currentScore = alphaBetaMinimax(board, players, newNode, alpha, beta, depth + 1, 2, players.get(1));
-				maxValue = Math.max(maxValue, currentScore);
+				minValue = Math.min(minValue, currentScore);
 
 				// Set alpha
-				alpha = Math.max(currentScore, alpha);
+				alpha = Math.min(currentScore, alpha);
 				//newNode.setEstimateCost(currentScore);
 				if (depth == 1)
 					rootsChildren.add(newNode);
@@ -136,10 +136,10 @@ public class Game {
 				board = playMove(board, players, newNode, 1);
 				//players = AIPlayers;
 				currentScore = alphaBetaMinimax(board, players, newNode, alpha, beta, depth + 1, 1, players.get(0));
-				minValue = Math.min(minValue, currentScore);
+				maxValue = Math.max(maxValue, currentScore);
 
 				// Set beta
-				beta = Math.min(currentScore, beta);
+				beta = Math.max(currentScore, beta);
 			}
 
 			// reset board
