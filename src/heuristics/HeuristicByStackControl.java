@@ -1,6 +1,7 @@
 package src.heuristics;
 
 import java.util.List;
+import java.util.Random;
 
 import src.Game;
 import src.Node;
@@ -28,6 +29,11 @@ public class HeuristicByStackControl extends Heuristic {
 			}
 		}
 		
+		Random rand = new Random();
+
+		int  n = rand.nextInt(3) + 1;
+		if (n < 2)
+			estimate--;
 		return estimate;
 	}
 	
