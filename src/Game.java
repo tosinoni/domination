@@ -18,7 +18,8 @@ public class Game {
 	private List<Player> AIPlayers;
 	private List<Piece>[][] gamePieces;
 	private Set<Node> rootsChildren;
-	private int uptoDepth = 3;
+	private Node bestMove;
+	private int uptoDepth = 4;
 	private ProductionSystem productionSystem;
 	private Player currentPlayer;
 	private Heuristic currentHeuristic;
@@ -69,95 +70,77 @@ public class Game {
 		return true;
 	}
 
-	private List<Piece>[][] playMove(List<Piece>[][] board, List<Player> players, Node node, int turn) {
+	private List<Piece>[][] playMove(List<Piece>[][] board, List<Player> players, Node node) {
 		if (node != null) {
 			board = node.getState().getCloneGrid();
 			if (node.getCapturedPieces() != null && !node.getCapturedPieces().isEmpty()) {
 				for (Piece piece : node.getCapturedPieces()) {
-						if (piece.getPlayer().equals(players.get(turn)))
-							players.get(turn).addPiece(piece);
-						else
-							players.get(turn).addOponentPiece(piece);
-					}
+					if (piece.getPlayer().getIndex() == players.get(0).getIndex())
+						players.get(0).addPiece(piece);
+					else
+						players.get(0).addOponentPiece(piece);
+				}
 			}
 
-			if (!players.get(turn).getPieces().isEmpty() && node.getMoveType() != null && node.getMoveType().equals(Node.pieceMoveType)){
-				players.get(turn).getPieces().remove(0);
+			if (!players.get(0).getPieces().isEmpty() && node.getMoveType() != null
+					&& node.getMoveType().equals(Node.pieceMoveType)) {
+				players.get(0).getPieces().remove(0);
 			}
-			//this.AIPlayers = new ArrayList<>(players);
+
 			return board;
 		}
 
 		return null;
 	}
 
-	
-	public int alphaBetaMinimax(List<Piece>[][] board, List<Player> players, Node node, int alpha, int beta, int depth,
-			int turn, Player player) {
-		if (beta <= alpha) {
-			// System.out.println("Pruning at depth = "+depth);
-			if (turn == 1)
-				return Integer.MAX_VALUE;
-			else
-				return Integer.MIN_VALUE;
-		}
+	public int alphaBetaMinimax(List<Player> players, Node node, int alpha, int beta, int depth, int turn) {
+		Player player = players.get(turn - 1);
 
-		if (depth == uptoDepth || isGameOver(board, players)) {
+		if (depth == uptoDepth || isGameOver(node.getState().getGrid(), players)) {
 			return currentHeuristic.evaluate(node, player);
 		}
 
 		Set<Node> expandedNodes = productionSystem.expand(node, player);
 
-		if (expandedNodes.isEmpty())
-			return 0;
-
-		if (depth == 1)
-			rootsChildren.clear();
-
-		int maxValue = Integer.MIN_VALUE, minValue = Integer.MAX_VALUE;
-		List<Player> initialPlayers = cloneList(players);
-        List<Piece>[][] initialBoard = cloneBoard(board);
-
-		for (Node newNode : expandedNodes) {
-			int currentScore = 0;
-
-			if (turn == 1) {
-				board = playMove(board, players, newNode, 0);
-				//players = AIPlayers;
-				currentScore = alphaBetaMinimax(board, players, newNode, alpha, beta, depth + 1, 2, players.get(1));
-				minValue = Math.min(minValue, currentScore);
-
-				// Set alpha
-				alpha = Math.min(currentScore, alpha);
-				//newNode.setEstimateCost(currentScore);
-				if (depth == 1)
-					rootsChildren.add(newNode);
-			} else if (turn == 2) {
-				board = playMove(board, players, newNode, 1);
-				//players = AIPlayers;
-				currentScore = alphaBetaMinimax(board, players, newNode, alpha, beta, depth + 1, 1, players.get(0));
-				maxValue = Math.max(maxValue, currentScore);
-
-				// Set beta
-				beta = Math.max(currentScore, beta);
-			}
-
-			// reset board
-			board = cloneBoard(initialBoard);
-			
-			players = cloneList(initialPlayers);
-			// If a pruning has been done, don't evaluate the rest of the
-			// sibling states
-			if (currentScore == Integer.MAX_VALUE || currentScore == Integer.MIN_VALUE)
-				break;
+		if (expandedNodes.isEmpty()) {
+			return currentHeuristic.evaluate(node, player);
 		}
-		return players.get(turn - 1).equals(player) ? maxValue : minValue;
+
+		int currentScore;
+
+		if (turn == 1) {
+			for (Node newNode : expandedNodes) {
+				currentScore = alphaBetaMinimax(players, newNode, alpha, beta, depth + 1, 2);
+
+				if (currentScore > alpha) {
+					alpha = currentScore;
+					if (depth == 1)
+						bestMove = newNode;
+				}
+				if (alpha >= beta)
+					return alpha;
+			}
+			return alpha;
+		} else {
+			for (Node newNode : expandedNodes) {
+
+				currentScore = alphaBetaMinimax(players, newNode, alpha, beta, depth + 1, 1);
+				if (currentScore < beta) {
+					beta = currentScore;
+					if (depth == 1)
+						bestMove = newNode;
+				}
+				if (beta <= alpha)
+					return beta;
+			}
+			return beta;
+		}
 	}
 
 	private void createPlayers(int n) {
 		for (int i = 1; i <= n; i++) {
 			Player player;
-			if (i % 2 == 0)
+			if (i == 1)
 				player = new Player("" + i, i, new HeuristicByCapturedPieces());
 			else
 				player = new Player("" + i, i, new HeuristicByStackControl());
@@ -214,28 +197,31 @@ public class Game {
 	}
 
 	public static List<Player> cloneList(List<Player> players) {
-	    List<Player> clone = new ArrayList<Player>(players.size());
-	    for (Player item : players) clone.add(new Player(item));
-	    return clone;
+		List<Player> clone = new ArrayList<Player>(players.size());
+		for (Player item : players)
+			clone.add(new Player(item));
+		return clone;
 	}
+
 	public void play(Scanner sc) {
 		Node n = new Node(new State(gamePieces));
 		n.getState().print();
 		currentHeuristic = currentPlayer.getHeuristic();
 
 		while (!isGameOver(gamePieces, players)) {
-			System.out.println("player " + currentPlayer.getIndex() + " ----> captured pieces: " + currentPlayer.getOpponentPieces().size() + "  reserve: " + currentPlayer.getPieces().size());
 
-			int num = alphaBetaMinimax(cloneBoard(gamePieces), cloneList(players), n, Integer.MIN_VALUE, Integer.MAX_VALUE,
-					1, 1, currentPlayer);
-
+			int num = alphaBetaMinimax(cloneList(players), n, Integer.MIN_VALUE, Integer.MAX_VALUE, 1, 1);
 			System.out.println(num);
-			Node playerMove = returnBestMove();
-			gamePieces = playMove(gamePieces, players, playerMove, currentPlayer.getIndex() - 1);
-			n = playerMove;
+			int turn = currentPlayer.getIndex(); 
+			gamePieces = playMove(gamePieces, players, bestMove);
+			n = bestMove;
+			
+			bestMove.getState().print();
 
-			n.getState().print();
-			System.out.println("player " + currentPlayer.getIndex() + " ----> captured pieces: " + currentPlayer.getOpponentPieces().size() + "  reserve: " + currentPlayer.getPieces().size());
+			currentPlayer = players.get(0);
+			// n.getState().print();
+			System.out.println("player " + currentPlayer.getIndex() + " ----> captured pieces: "
+					+ currentPlayer.getOpponentPieces().size() + "  reserve: " + currentPlayer.getPieces().size());
 
 			String input = null;
 
@@ -249,26 +235,19 @@ public class Game {
 	}
 
 	private void setNextPlayer() {
-		System.out.println(currentPlayer.getIndex());
-
-		if (currentPlayer.getIndex() == 1) {
-			currentPlayer = players.get(1);
-		} else {
-			currentPlayer = players.get(0);
-		}
+		Collections.reverse(players);
+		currentPlayer = players.get(0);
 
 		currentHeuristic = currentPlayer.getHeuristic();
-		System.out.println(currentPlayer.getIndex());
 
 	}
 
 	public Node returnBestMove() {
 		Node node = null;
-		
+
 		System.out.println(rootsChildren.size());
 		for (Node n : rootsChildren) {
-			if ((node == null || node.getEstimateCost() <= n.getEstimateCost())
-					&& !currentPlayer.getMoves().contains(node)) {
+			if ((node == null || node.getEstimateCost() <= n.getEstimateCost())) {
 				node = n;
 			}
 		}
@@ -289,15 +268,15 @@ public class Game {
 		Set<Node> nodes = m.moveLeft(s, 1, 2);
 
 		Node n = nodes.iterator().next();
-		game.gamePieces = game.playMove(game.gamePieces, game.players, n, 0);
+		//game.gamePieces = game.playMove(game.gamePieces, game.players, n, 0);
 		System.out.println(n.getCapturedPieces().size());
 
 		System.out.println(game.players.get(0).getPieces());
-	    s = new State(game.getGamePieces());
-	    s.print();
-//		for (Node n : nodes) {
-//			n.getState().print();
-//		}
+		s = new State(game.getGamePieces());
+		s.print();
+		// for (Node n : nodes) {
+		// n.getState().print();
+		// }
 	}
 
 }
