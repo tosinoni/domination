@@ -9,7 +9,7 @@ import src.Piece;
 import src.Player;
 import src.State;
 
-public class HeuristicByStackControl extends Heuristic {
+public class HeuristicByStackControlAndCapturedPieces extends Heuristic {
 
 	public int evaluate(Node node, Player player) {
 		estimate = 0;
@@ -41,7 +41,7 @@ public class HeuristicByStackControl extends Heuristic {
 		State s = new State(game.getGamePieces());
 		s.print();
 		
-		Heuristic heuristic = new HeuristicByStackControl();
+		Heuristic heuristic = new HeuristicByStackControlAndCapturedPieces();
 		System.out.println(heuristic.evaluate(new Node(s), game.getPlayers().get(0)));
 	}
 }

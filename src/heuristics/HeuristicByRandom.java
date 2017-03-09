@@ -6,7 +6,7 @@ import src.Node;
 import src.Piece;
 import src.Player;
 
-public class HeuristicByCapturedPieces extends Heuristic{
+public class HeuristicByRandom extends Heuristic{
 
 	public int evaluate(Node node, Player player) {
 

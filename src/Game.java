@@ -10,8 +10,8 @@ import java.util.Scanner;
 import java.util.Set;
 
 import src.heuristics.Heuristic;
-import src.heuristics.HeuristicByCapturedPieces;
-import src.heuristics.HeuristicByStackControl;
+import src.heuristics.HeuristicByRandom;
+import src.heuristics.HeuristicByStackControlAndCapturedPieces;
 
 public class Game {
 	private List<Player> players;
@@ -144,9 +144,9 @@ public class Game {
 		for (int i = 1; i <= n; i++) {
 			Player player;
 			if (i == 1)
-				player = new Player("" + i, i, new HeuristicByCapturedPieces());
+				player = new Player("" + i, i, new HeuristicByRandom());
 			else
-				player = new Player("" + i, i, new HeuristicByStackControl());
+				player = new Player("" + i, i, new HeuristicByStackControlAndCapturedPieces());
 
 			players.add(player);
 		}
