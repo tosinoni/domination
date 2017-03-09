@@ -55,7 +55,7 @@ public class Move {
 					State s = new State (gamePieces);
 					Node n = new Node(s);
 					n.setCapturedPieces(capturedPieces);
-					n.setMovePosition(new Position(i, j));
+					n.setMovePosition(new Position(i, j, i, j+index));
 					nodes.add(n);
 				}
 			}
@@ -88,7 +88,7 @@ public class Move {
 					State s = new State (gamePieces);
 					Node n = new Node(s);
 					n.setCapturedPieces(capturedPieces);
-					n.setMovePosition(new Position(i, j));
+					n.setMovePosition(new Position(i, j, i, num));
 					nodes.add(n);
 				}
 			}
@@ -120,7 +120,7 @@ public class Move {
 					State s = new State (gamePieces);
 					Node n = new Node(s);
 					n.setCapturedPieces(capturedPieces);
-					n.setMovePosition(new Position(i, j));
+					n.setMovePosition(new Position(i, j, num, j));
 					nodes.add(n);
 				}
 			}
@@ -152,7 +152,7 @@ public class Move {
 					State s = new State (gamePieces);
 					Node n = new Node(s);
 					n.setCapturedPieces(capturedPieces);
-					n.setMovePosition(new Position(i, j));
+					n.setMovePosition(new Position(i, j, num, j));
 
 					nodes.add(n);
 				}

@@ -48,7 +48,7 @@ public class ProductionSystem {
 							
 							State s = new State(stateGrid);
 							Node n = new Node(s);
-							n.setMovePosition(new Position(i, j));
+							n.setMovePosition(new Position(0, 0, i, j));
 							if (stateGrid[i][j].size() == 5) {
 								n.setCapturedPieces(Arrays.asList(stateGrid[i][j].remove(0)));
 

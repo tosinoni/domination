@@ -3,10 +3,14 @@ package src;
 public class Position {
 	private int i;
 	private int j;
+	private int i1;
+	private int j1;
 	
-	public Position(int i, int j) {
+	public Position(int i, int j, int i1, int j1) {
 		this.i= i;
 		this.j = j;
+		this.i1 = i1;
+		this.j1 = j1;
 	}
 	
 	
@@ -29,6 +33,9 @@ public class Position {
 		this.j = j;
 	}
 	
+	public String toString() {
+		return i + "," + j + " -> " + i1 + "," + j1;
+	}
 
 	 public boolean equals(Object obj) {
 	    	if (obj == this)
@@ -39,7 +46,7 @@ public class Position {
 			
 			Position position = (Position) obj;
 			
-			return position.i == i && position.j == j;
+			return position.i == i && position.j == j && position.i1 == i1 && position.j1 == j1;
 	    }
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

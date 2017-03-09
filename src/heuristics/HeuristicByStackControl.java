@@ -27,13 +27,11 @@ public class HeuristicByStackControl extends Heuristic {
 					}
 				}
 			}
+			
+			estimate -= node.getCapturedPieces().size();
+			
 		}
 		
-		Random rand = new Random();
-
-		int  n = rand.nextInt(3) + 1;
-		if (n < 2)
-			estimate--;
 		return estimate;
 	}
 	

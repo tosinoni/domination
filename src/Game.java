@@ -36,8 +36,9 @@ public class Game {
 
 	private boolean isGameOver(List<Piece>[][] board, List<Player> players) {
 		for (Player player : players) {
-			if (player.getOpponentPieces().size() == 6 || isBoardControlledByOnePlayer(board, player))
+			if (player.getOpponentPieces().size() == 6 || isBoardControlledByOnePlayer(board, player)) {
 				return true;
+			}
 		}
 
 		return false;
@@ -86,6 +87,8 @@ public class Game {
 					&& node.getMoveType().equals(Node.pieceMoveType)) {
 				players.get(0).getPieces().remove(0);
 			}
+			
+			System.out.println("Player " + players.get(0).getIndex() + " played move " + node.getMovePosition());
 
 			return board;
 		}
@@ -209,29 +212,29 @@ public class Game {
 		currentHeuristic = currentPlayer.getHeuristic();
 
 		while (!isGameOver(gamePieces, players)) {
-
-			int num = alphaBetaMinimax(cloneList(players), n, Integer.MIN_VALUE, Integer.MAX_VALUE, 1, 1);
-			System.out.println(num);
-			int turn = currentPlayer.getIndex(); 
-			gamePieces = playMove(gamePieces, players, bestMove);
-			n = bestMove;
-			
-			bestMove.getState().print();
-
-			currentPlayer = players.get(0);
-			// n.getState().print();
-			System.out.println("player " + currentPlayer.getIndex() + " ----> captured pieces: "
-					+ currentPlayer.getOpponentPieces().size() + "  reserve: " + currentPlayer.getPieces().size());
-
 			String input = null;
 
 			while (input == null) {
 				System.out.println("\nplease enter any character to see the next players move: ");
 				input = sc.nextLine();
 			}
+			
+			alphaBetaMinimax(cloneList(players), n, Integer.MIN_VALUE, Integer.MAX_VALUE, 1, 1);
+			gamePieces = playMove(gamePieces, players, bestMove);
+			n = bestMove;
+			
+			bestMove.getState().print();
+
+			currentPlayer = players.get(0);
+			System.out.println("player " + currentPlayer.getIndex() + " ----> captured pieces: "
+					+ currentPlayer.getOpponentPieces().size() + "  reserve: " + currentPlayer.getPieces().size());
 
 			setNextPlayer();
 		}
+		
+		System.out.println("****************************************************************************");
+		System.out.println("******************  Player " + players.get(1).getIndex() + " wins ***************************");
+		System.out.println("****************************************************************************");
 	}
 
 	private void setNextPlayer() {
