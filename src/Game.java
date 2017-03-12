@@ -153,23 +153,24 @@ public class Game {
 	}
 
 	private void createInitialGameState() {
-		int count = 0;
-		int num = 0;
-		Player currentPlayer = players.get(1);
+		int num;
+		Random rand = new Random();
+		int firstPlayerPieces = 0;
+		int secondPlayerPieces = 0;
+
 		for (int i = 1; i < 7; i++) {
 			for (int j = 1; j < 7; j++) {
 				if (players.size() == 2 && isBoxValid(i, j)) {
-
-					if (count % 2 == 0 && currentPlayer.equals(players.get(0))) {
-						num = 1;
-					} else if (count % 2 == 0 && currentPlayer.equals(players.get(1))) {
-						num = 0;
+					num = rand.nextInt(2) + 1;
+					Piece piece;
+					if ((num == 1 && firstPlayerPieces < 18) || secondPlayerPieces == 18 ) {
+						piece = new Piece(Integer.toString(1), players.get(0));
+						firstPlayerPieces++;
+					} else {
+						piece = new Piece(Integer.toString(2), players.get(1));
+						secondPlayerPieces++;
 					}
-					currentPlayer = players.get(num);
-					Piece piece = new Piece(Integer.toString(num + 1), players.get(num));
-					// players.get(num).addPiece(piece);
 					gamePieces[i][j] = new ArrayList<>(Arrays.asList(piece));
-					count++;
 				}
 			}
 		}
